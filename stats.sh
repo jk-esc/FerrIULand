@@ -131,7 +131,7 @@ s4_2_3_Stat_Rei_Sucata () {
 ## * @brief  s4_2_4_Stat_TopVendedores Ler a descrição da tarefa S4.2.4 no enunciado
 ## */
 s4_2_4_Stat_TopVendedores () {
-    so_debug "<"
+    so_debug "<"d
 
     ##// Substituir este comentário pelo código a ser implementado pelo aluno
 
