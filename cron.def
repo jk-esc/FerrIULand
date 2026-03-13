@@ -1,0 +1,20 @@
+#####################################################################################
+## ISCTE-IUL: Trabalho prático de Sistemas Operativos 2025/2026, Enunciado Versão 1
+##
+## Aluno: Nº: 124575      Nome: Luiz da Silva
+## Nome do Módulo: S3.2 cron.def
+## Descrição/Explicação do Módulo:
+##
+##
+## Explicação de quais os comandos a usar para configurar o seu sistema Linux
+## usando este ficheiro:
+## * - Minuto: 1 (passa um minuto da meia-noite)
+## * - Hora: 0 (meia-noite, 0h)
+## * - Dia do mês: * (todos os dias do mês)
+## * - Mês: * (todos os meses)
+## * - Dia da semana: 1-6 (segunda-feira a sábado)
+## *   Nota: 0=domingo, 1=segunda, 2=terça, 3=quarta, 4=quinta, 5=sexta, 6=sábado
+#####################################################################################
+
+# MINUTO.  #HORA #DIA_MÊS #MÊS #DIA_SEMANA. #PATH TOTAL E COMANDO
+1          0     *        *    1-5          cd /tigre/home/a124575/trab-2025-parte-1/manutencao.sh
