@@ -1,6 +1,0 @@
-#!/bin/bash
-[[ $(ls -A /tmp/user/$UID) ]] && rm -rf /tmp/user/$UID/*
-chmod +w .
-/home/so/trabalho-2025-2026/utils/parte-1/validator/so_2025_trab1_validator.exe $@
-chmod +w .
-[[ $(ls -A /tmp/user/$UID) ]] && rm -rf /tmp/user/$UID/*
