@@ -6,14 +6,14 @@
 #####################################################################################
 ## ISCTE-IUL: Trabalho prático de Sistemas Operativos 2025/2026, Enunciado Versão 1
 ##
-## Aluno: Nº: 124575      Nome: Luiz da Silva
-## Nome do Módulo: regista_venda.sh
+## Aluno: Nº:     Nome:
+## Nome do Módulo: menu.sh
 ## Descrição/Explicação do Módulo:
 ##
 ##
 #####################################################################################
 
-##/**
+###/**
 ## * @brief  s2_1_ValidaArgumentos Ler a descrição da tarefa S2.1 no enunciado
 ## */
 s2_1_ValidaArgumentos () {
