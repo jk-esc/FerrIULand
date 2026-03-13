@@ -1,1 +1,2 @@
-/home/so/trabalho-2025-2026/utils/parte-1/validator/regista_venda.sh
+#!/bin/bash
+a=$((($#==3))&&echo "SUCCESS"||echo "ERROR");>&2 echo "@@VALIDATOR_RESPONSE@@ $0 $a $# $@"

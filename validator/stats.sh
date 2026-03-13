@@ -1,1 +1,3 @@
-/home/so/trabalho-2025-2026/utils/parte-1/validator/stats.sh
+#!/bin/bash
+for a in "$@";do((a<1||a>4))&&{>&2 echo "@@VALIDATOR_RESPONSE@@ $0 ERROR $# $@";exit 1;} done
+>&2 echo "@@VALIDATOR_RESPONSE@@ $0 SUCCESS $# $@"
