@@ -24,34 +24,46 @@ s3_1_Manutencao () {
     fileVendas="vendas.txt"
     hoje=$(date '+%Y-%m-%d')
 
+    # Verificar materiais.txt
     if ! [[ -f "$fileMat" ]]; then
-        so_error S3.1 "Ficheiro não existe"
-    fi 
-
-    if ! [[ -r {$fileMat} || -w {$fileMat} ]]; then
-        so_error S3.1 "Não tem permissões de leitura/escritura"
+        so_error S3.1
+        exit 1
+    fi
+    if ! [[ -r "$fileMat" && -w "$fileMat" ]]; then
+        so_error S3.1
+        exit 1
     fi
 
+    # vendas.txt é opcional — se não existir, não há nada a fazer
     if [[ -f "$fileVendas" ]]; then
-        if ! [[ -r {vendas} || -w {$fileVendas}]]; then 
-            so_error S3.1 "Ficheiro de vendas existe mas não tem permissões"
-        fi 
-    else 
-        echo "donworryboutityaheard"
-    fi 
-
-    limite=$(awk -F';' '{ print $3 }' materiais.txt)
-    total_hoje=$(grep -i ";material;" "$fileVendas" | grep "$hoje" | awk -F';' '{ sum += $3} END { print SUM+0 }')
-    
-    if [[ "$total_hoje" -gt "$limite" || "$total_hoje" == "$limite" ]]; then 
-        limite+=100
-        so_success S3.1
-    else
-        so_error S3.1 
+        if ! [[ -r "$fileVendas" ]]; then
+            so_error S3.1
+            exit 1
+        fi
     fi
 
+    so_success S3.1
 
-    so_success S3.1 "gucci" 
+    # Lógica de manutenção: para cada material com limite definido,
+    # verificar se o total vendido hoje excede o limite e atualizar
+    if [[ -f "$fileVendas" ]]; then
+        awk -F';' -v OFS=';' -v hoje="$hoje" '
+            NR==FNR {
+                # Ler vendas do dia para cada material
+                split($4, dt, "T")
+                if (dt[1] == hoje) vendas[$2] += $3
+                next
+            }
+            {
+                # Processar materiais
+                if (NF == 3 && ($1 in vendas) && vendas[$1] >= $3) {
+                    $3 = $3 + 100
+                }
+                print
+            }
+        ' "$fileVendas" "$fileMat" > /tmp/mat_tmp && mv /tmp/mat_tmp "$fileMat"
+    fi
+
     so_debug ">"
 }
 
@@ -63,7 +75,6 @@ main () {
     so_debug ">"
 }
 main
-
 ## S3.2. Invocação do script:
 ## • Altere o ficheiro cron.def fornecido, por forma a configurar o seu sistema para que o Script: manutencao.sh  seja executado todos os dias de segunda-feira a sábado (incluindo feriados), quando tiver passado um minuto da meia-noite (às 0h01). Nos comentários no início do ficheiro cron.def, explique a configuração realizada, e indique qual é o comando Shell associado a essa configuração que vai ser utilizado para despoletar essa configuração.
 ## • O ficheiro cron.def alterado deverá ser submetido para avaliação juntamente com os outros Shell scripts
