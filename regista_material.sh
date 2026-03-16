@@ -16,13 +16,19 @@
 ###/**
 ## * @brief  s1_1_ValidaArgumentos Ler a descrição da tarefa S1.1 no enunciado
 ## */
+
+material=""
+precoKg=""
+limiteD=""
+file="materiais.txt"
+
 s1_1_ValidaArgumentos () {
     so_debug "<"
 
     # ./regista_material.sh Ferro 1 1000 // OU: ./regista_material.sh Aluminio 2 (Todos para o materiais.txt)
-    global material=$1
-    global precoKg=$2
-    global limiteD=$3
+    material=$1
+    precoKg=$2
+    limiteD=$3
 
     if [[ $# -lt 2  ||  $# -gt 3 ]]; then
         so_error S1.1 "menos de 2 argumentos OU mais de 3"
@@ -62,7 +68,6 @@ s1_1_ValidaArgumentos () {
 s1_2_ValidaMaterial () {
     so_debug "<"
 
-    global file="materiais.txt"
     if ! [[ -f "$file" ]]; then 
         echo "criar ficheiro: ${file}"
         touch materiais.txt
@@ -115,7 +120,6 @@ s1_3_AdicionaMaterial () {
 s1_4_ListaMaterial () {
     so_debug "<"
 
-    ##// Substituir este comentário pelo código a ser implementado pelo aluno
     if [[ -f "$file" ]]; then
         so_error S1.4 "Não exisite o ficheiro materiais.txt"
     else 
@@ -129,7 +133,8 @@ s1_4_ListaMaterial () {
 main () {
     so_debug "<"
 
-    ##// Substituir este comentário pelo código a ser implementado pelo aluno
+    s1_1_ValidaArgumentos "$@"
+    s1_2_ValidaMaterial
 
     so_debug ">"
 }
