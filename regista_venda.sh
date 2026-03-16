@@ -16,27 +16,42 @@
 ###/**
 ## * @brief  s2_1_ValidaArgumentos Ler a descrição da tarefa S2.1 no enunciado
 ## */
+file="vendas.txt"
+date=""
+hoje=""
+pesokg=""
+material=""
+nome=""
+nome_completo=""
+
 s2_1_ValidaArgumentos () {
     so_debug "<"
 
-    global file="vendas.txt"
-    global nome=$1
-    global material=$2
-    global pesokg=$3
-    global date=$(date '+%Y-%m-%dT%H:%M')
-    global hoje=$(date '+%Y-%m-%d')
-
-    if [[ $# -ne 3 ]]; then 
-        so_error S2.1 "Os argumentos não são exatamente 3"
-        return
+    date=$(date '+%Y-%m-%dT%H:%M')
+    hoje=$(date '+%Y-%m-%d')
+ 
+    if [[ $# -ne 3 ]]; then
+        so_error S2.1
+        exit 1
     fi
 
-    if ! [[ "$pesokg" =~ '[0-9]' &&  "$pesokg" -gt 0 ]]; then 
-        so_error S2.1 "O preço por kg não é um inteiro, ou se for não é maior que 0"
-        return 
+    nome="$1"
+    material="$2"
+    pesokg="$3"
+
+    # Nome não pode ser vazio
+    if [[ -z "$nome" ]]; then
+        so_error S2.1
+        exit 1
     fi
 
-    so_success S2.1 
+    # Peso: inteiro positivo
+    if ! [[ "$pesokg" =~ ^[0-9]+$ ]] || [[ "$pesokg" -le 0 ]]; then
+        so_error S2.1
+        exit 1
+    fi
+
+    so_success S2.1
     so_debug ">"
 }
 
@@ -45,39 +60,58 @@ s2_1_ValidaArgumentos () {
 ## */
 s2_2_ValidaVenda () {
     so_debug "<"
-    
+
+    # Se não existe, tentar criar
     if [[ ! -f "$file" ]]; then
-        so_error S2.2 
-        touch vendas.txt 
-    elif [[ ! -r "$file" || ! -w "$file" ]]; then
-        so_error S2.2 "Não tem permissões"
-        return 
-    fi 
-
-    if [[ $(awk -F';' '{ print $2 }' vendas.txt) != *"$material"* ]]; then
-        so_error S2.2 "o material não existe na bd" 
+        so_error S2.2
+        touch "$file" 2>/dev/null
+        # Se ainda não existe (não foi possível criar)
+        if [[ ! -f "$file" ]]; then
+            so_error S2.2
+            exit 1
+        fi
     fi
 
-    limite=$(awk -F';' '{ print $3 }' materiais.txt)
-    total_hoje=$(grep -i ";$material;" "$file" | grep "$hoje" | awk -F';' '{ sum += $3 } END { print sum+0 }' )
-    novo_total=$((total_hoje + pesokg))
-
-    if [[ "$novo_total" -gt "$limite" ]]; then 
-        maximo=$((limite - total_hoje))
-        so_error S2.2 "limites e cenas"
-        return
+    # Verificar permissões de leitura e escrita
+    if ! [[ -r "$file" && -w "$file" ]]; then
+        so_error S2.2
+        exit 1
     fi
-
-    global prim_nome=$(echo "$nome" | awk '{ print $1 }')
-    global ult_nome=$(echo "$nome" | awk '{ print $NF }')
-    global nome_completo="$prim_nome $ult_nome"
-
-    if ! cat /etc/passwd | awk -F':' '{ print $5 }' | grep -qx "$nome_completo"; then 
-        so_error S2.2 "O vendedor '$nome_completo' não é um utilizador válido do sistema" 
-        return
+ 
+    # Verificar se material existe em materiais.txt
+    if [[ ! -f materiais.txt ]] || ! awk -F';' '{ print $1 }' materiais.txt 2>/dev/null | grep -qx "$material"; then
+        so_error S2.2
+        exit 1
     fi
-
-    so_success S2.2 
+ 
+    # Verificar limite diário (só se existir limite definido)
+    limite=$(awk -F';' -v mat="$material" '$1==mat && NF==3 { print $3 }' materiais.txt 2>/dev/null)
+    if [[ -n "$limite" ]]; then
+        total_hoje=$(awk -F';' -v mat="$material" -v dia="$hoje" \ '$2==mat && substr($4,1,10)==dia { sum+=$3 } END { print sum+0 }' "$file" 2>/dev/null)
+        novo_total=$((total_hoje + pesokg))
+        if [[ "$novo_total" -gt "$limite" ]]; then
+            so_error S2.2
+            exit 1
+        fi
+    fi
+ 
+    # Verificar se vendedor é utilizador válido (primeiro + último nome)
+    prim_nome=$(echo "$nome" | awk '{ print $1 }')
+    ult_nome=$(echo "$nome" | awk '{ print $NF }')
+    nome_completo="$prim_nome $ult_nome"
+ 
+    if ! awk -F':' '{
+        split($5, a, ",")
+        n = split(a[1], w, " ")
+        if (n >= 2) print w[1] " " w[n]
+        else print w[1]
+    }' /etc/passwd 2>/dev/null | grep -qx "$nome_completo"; then
+        so_error S2.2
+        exit 1
+    fi
+ 
+    # Sucesso ao validar venda
+    so_success S2.2
     so_debug ">"
 }
 
@@ -91,8 +125,8 @@ s2_3_AdicionaVenda () {
     if echo "$linha" >> "$file"; then
         so_success S2.3
     else
-        so_error S2.3 "Erro ao adicionar venda ao ficheiro vendas.txt"
-        return
+        so_error S2.3
+        exit 1
     fi
 
     so_debug ">"
@@ -105,7 +139,6 @@ main () {
     s2_2_ValidaVenda
     s2_3_AdicionaVenda
 
-
     so_debug ">"
 }
-main
+main "$@"
