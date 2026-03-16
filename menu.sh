@@ -42,11 +42,11 @@ s5_2_1_ValidaOpcao () {
     so_debug "<"
 
     if [[ ! "$opcao" =~ ^[0-4]$ ]]; then
-        so_error S5.2.1 
+        so_error S5.2.1 "$opcao"
         return 
     fi 
 
-    so_success S5.2.1
+    so_success S5.2.1 "$opcao"
     so_debug ">"
 }
 
@@ -58,7 +58,6 @@ s5_2_2_ProcessaOpcao () {
 
     case $opcao in
         0)
-            so_success S5.2.1 0
             exit 0
             ;;
         1)
@@ -84,16 +83,18 @@ s5_2_2_ProcessaOpcao () {
 s5_3_Opcao1 () {
     so_debug "<"
 
-    so_success S5.2.1 1
     echo "Regista material:"
     read -p "Introduza o nome do material: " nome
     read -p "Introduza o preço: " preco
     read -p "Introduza o limite diário em kg [opcional] " limite
 
-    ./regista_material.sh "$nome" "$preco" "$limite"
+    if [[ -n "$limite" ]]; then          # só passa limite se não for vazio
+        ./regista_material.sh "$nome" "$preco" "$limite"
+    else
+        ./regista_material.sh "$nome" "$preco"
+    fi
 
     so_success S5.3
-    so_success S5.2.1 0
     so_debug ">"
 }
 
@@ -102,17 +103,15 @@ s5_3_Opcao1 () {
 ## */
 s5_4_Opcao2 () {
     so_debug "<"
-
-    so_success S5.2.1 2
+    
     echo "Regista venda:"
     read -p "Introduza o nome do vendedor: " vendedor
     read -p "Introduza o nome do material: " material
     read -p "Introduza a quantidade em kg do material: " quantidade
 
     ./regista_venda.sh "$vendedor" "$material" "$quantidade"
-    so_success S5.4
-    so_success S5.2.1 0
 
+    so_success S5.4
     so_debug ">"
 }
 
@@ -122,10 +121,8 @@ s5_4_Opcao2 () {
 s5_5_Opcao3 () {
     so_debug "<"
 
-    so_success S5.2.1 3
     ./manutencao.sh
     so_success S5.5
-    so_success S5.2.1 0
 
     so_debug ">"
 }
@@ -136,7 +133,6 @@ s5_5_Opcao3 () {
 s5_6_Opcao4 () {
     so_debug "<"
 
-    so_success S5.2.1 4
     echo "Estatísticas:"
     echo "1: nome do material com o preço mais alto"
     echo "2: top3 dos materiais com mais kg comercializados no mês atual"
@@ -155,7 +151,6 @@ s5_6_Opcao4 () {
         so_success S5.6
     fi
 
-    so_success S5.2.1 0
     so_debug ">"
 }
 
