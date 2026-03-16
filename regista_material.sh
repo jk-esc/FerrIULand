@@ -31,31 +31,25 @@ s1_1_ValidaArgumentos () {
     limiteD=$3
 
     if [[ $# -lt 2  ||  $# -gt 3 ]]; then
-        so_error S1.1 "menos de 2 argumentos OU mais de 3"
-        return
+        so_error S1.1 
+        exit 1 
     fi
 
     if [[ ${#material} -lt 2 ]]; then 
-        so_error S1.1 "o argumento de material tem menos de 2 caracteres" 
-        return
+        so_error S1.1 
+        exit 1 
     fi
 
     if ! [[ "$precoKg" =~ ^[0-9]+$  && "$precoKg" -gt 0 ]]; then 
-        so_error S1.1 "o preço por kg não é um valor númerico positivo"
-        return
+        so_error S1.1 
+        exit 1 
     fi
 
-    if [[ -n "$limiteD" ]]; then 
-        if ! [[ "$limiteD" =~ ^[0-9]+$ && "$limiteD" -gt 0 ]]; then
-            so_error S1.1 "0 limite diário não é um valor númerico positivo"
-            return
-        fi
-    fi
-
-    if [[ -n "$limiteD" ]]; then 
-        echo "$material;$precoKg;$limiteD" >> materiais.txt
-    else 
-        echo "$material;$precoKg" >> materiais.txt
+    if [[ $# -eq 3 ]]; then
+      if ! [[ "$limiteD" =~ ^[0-9]+$ && "$limiteD" -gt 0 ]]; then
+        so_error S1.1
+        exit 1
+      fi
     fi
 
     so_success S1.1
@@ -68,24 +62,27 @@ s1_1_ValidaArgumentos () {
 s1_2_ValidaMaterial () {
     so_debug "<"
 
-    if ! [[ -f "$file" ]]; then 
-        echo "criar ficheiro: ${file}"
-        touch materiais.txt
-        so_error S1.2 
-    elif ! [[ -r {$file} || -w {$file} ]]; then 
-        so_error s1.2 "Não tem permissões de leitura ou de escritura"
-        return
-    fi 
-    
+    if [[ ! -f "$file" ]]; then
+        so_error S1.2
+        touch "$file" 2>/dev/null
+        if [[ ! -f "$file" ]]; then
+            so_error S1.2
+            exit 1
+        fi
+    fi
 
-    if [[ $(awk -F';' '{ print $1 }' materiais.txt) != *"$material"* ]]; then 
+    if ! [[ -r "$file" && -w "$file" ]]; then
+        so_error S1.2
+        exit 1
+    fi
+
+    if awk -F';' '{ print $1 }' "$file" | grep -qx "$material"; then
+        so_success S1.2
+        s1_4_ListaMaterial
+    else
         so_error S1.2
         s1_3_AdicionaMaterial
-    else 
-        so_success S1.2 
-        s1_4_ListaMaterial
-        return
-    fi
+    fi    
 
     so_debug ">"
 }
@@ -96,21 +93,19 @@ s1_2_ValidaMaterial () {
 s1_3_AdicionaMaterial () {
     so_debug "<"
 
-    if [[ -n "$limiteD" ]]; then 
-        if [[ -f "$file" ]]; then 
-            so_error S1.3 "Ficheiro não existe"
-        else 
-            echo "$material;$precoKg;$limiteD" >> materiais.txt
-        fi
-    else 
-        if [[ -f "$file" ]]; then 
-            so_error S1.3 "Ficheiro não existe"
-        else 
-            echo "$material;$precoKg" >> materiais.txt
-        fi
+    if [[ ! -f "$file" ]]; then
+        so_error S1.3
+        return
     fi
 
-    so_success S1.3 
+    if [[ -n "$limiteD" ]]; then
+        echo "$material;$precoKg;$limiteD" >> "$file"
+    else
+        echo "$material;$precoKg" >> "$file"
+    fi
+
+    so_success S1.3
+    s1_4_ListaMaterial
     so_debug ">"
 }
 
@@ -120,11 +115,12 @@ s1_3_AdicionaMaterial () {
 s1_4_ListaMaterial () {
     so_debug "<"
 
-    if [[ -f "$file" ]]; then
-        so_error S1.4 "Não exisite o ficheiro materiais.txt"
-    else 
-        cat materiais.txt | sort -n -k 2 >> materiais-ordenados-preco.txt
-    fi 
+    if [[ ! -f "$file" ]]; then
+        so_error S1.4
+        return
+    fi
+
+    sort -t ';' -k2 -n "$file" > materiais-ordenados-preco.txt
 
     so_success S1.4
     so_debug ">"
