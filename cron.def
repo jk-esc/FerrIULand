@@ -21,4 +21,6 @@
 #####################################################################################
 
 # MINUTO.  #HORA #DIA_MÊS #MÊS #DIA_SEMANA. #PATH TOTAL E COMANDO
-1          0     *        *    1-5          cd /tigre/home/a124575/trab-2025-parte-1/manutencao.sh
+#1          0     *        *    1-5          cd /tigre/home/a124575/trab-2025-parte-1/manutencao.sh
+
+1  0  *  *  1-6  cd /tigre/home/a124575/trab-2025-parte-1 && ./manutencao.sh
