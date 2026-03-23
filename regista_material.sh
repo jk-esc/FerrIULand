@@ -95,7 +95,7 @@ s1_3_AdicionaMaterial () {
 
     if [[ ! -f "$file" ]]; then
         so_error S1.3
-        return
+        exit 1 
     fi
 
     if [[ -n "$limiteD" ]]; then
@@ -117,7 +117,7 @@ s1_4_ListaMaterial () {
 
     if [[ ! -f "$file" ]]; then
         so_error S1.4
-        return
+        exit 1
     fi
 
     sort -t ';' -k2 -n "$file" > materiais-ordenados-preco.txt

@@ -43,7 +43,7 @@ s5_2_1_ValidaOpcao () {
 
     if [[ ! "$opcao" =~ ^[0-4]$ ]]; then
         so_error S5.2.1 "$opcao"
-        return 
+        exit 1
     fi 
 
     so_success S5.2.1 "$opcao"
