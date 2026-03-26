@@ -162,14 +162,6 @@ Generates an HTML statistics report for the platform.
 </html>
 ```
 
-**To view the report in a browser:**
-
-```bash
-mkdir ~/public_html && cd ~/public_html && ln -s ~/trab-2025-parte-1/stats.html
-```
-
-Then open: `http://tigre.iul.lab/~aXXXXX/stats.html`
-
 ---
 
 ### S5 — `menu.sh`
